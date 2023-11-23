@@ -1,0 +1,146 @@
+/* outer */
+/* .css-uf99v8{
+  background-color: #ebeaf8;
+  margin: 30px;
+  border-radius: 20px;
+} */
+.appview-container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f7f6ff;
+  margin: 30px;
+  border-radius: 20px;
+}
+.css-1wrcr25{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f7f6ff;
+  margin: 30px;
+  border-radius: 20px;
+}
+.css-1n76uvr{
+  padding-bottom: 100%;
+}
+/* content */
+.st-emotion-cache-1wmy9hl{
+  margin-top: 50px;
+}
+
+/* images */
+.image-container{
+  display: flex;
+
+}
+.ugm-image{
+  width: 50%; /* Adjust this value as needed */
+  height: auto;
+
+}
+.tugu-image, .st-emotion-cache-1kyxreq{
+  width: 50%; /* Adjust this value as needed */
+  height: auto;
+
+}
+/* images */
+.css-ocqkz7{
+  margin-top: 120px;
+  margin-bottom: 20px;
+}
+.st-emotion-cache-hes0nz{
+  max-width: 75%;
+  padding: 0px;
+  font-size: 10px;
+  margin-bottom: 20px;
+}
+.css-keje6w{
+  height: 50%;
+}
+.css-6awftf, .st-emotion-cache-6awftf{
+  display: none;
+}
+/* container input and text */
+.css-1on073z,
+.st-emotion-cache-5rimss,
+.st-emotion-cache-1on073z,
+.css-5rimss{
+  display: flex;
+  justify-content: center;
+}
+/* input excel */
+.st-emotion-cache-1bwscdg{
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  width: 300px;
+  flex-direction: column;
+  background-color: #ebeaf8;
+  box-shadow: 0px 10px 10px 0 rgba(0, 0, 0, 0.15);
+}
+.css-1bwscdg{
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  width: 300px;
+  flex-direction: column;
+  background-color: #ebeaf8;
+  box-shadow: 0px 10px 10px 0 rgba(0, 0, 0, 0.15);
+}
+/* input excel text*/
+.css-9ycgxx, 
+.css-1aehpvj{
+  display: flex;
+  justify-content: center;
+}
+/* text input excel */
+.css-u8hs99, .st-emotion-cache-9ycgxx, .st-emotion-cache-1aehpvj, .st-emotion-cache-u8hs99j, .st-emotion-cache-u8hs99 {
+  margin-right: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.e1b2p2ww14{
+  margin: 0px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+/* browse file */
+.css-1chrx6k,
+.st-emotion-cache-1chrx6k{
+  margin-top: 8px;
+  box-shadow: 0px 10px 10px 0 rgba(0, 0, 0, 0.15);
+}
+/* cloud */
+.st-emotion-cache-noeb3a
+/* .eyeqlp51 */
+{
+  display: none;
+}
+/* uploaded file */
+.st-emotion-cache-fis6aj {
+  display: none;
+}
+
+.css-1on073z{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+/* .uploadedFile{
+  flex-direction: column;
+} */
+.css-10ix4kq{
+  display: none;
+}
+/* predict button */
+.row-widget{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+/* .css-1chrx6k{
+  margin: 0px;
+} */

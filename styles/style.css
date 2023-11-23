@@ -1,0 +1,158 @@
+/* div.block-container{padding-top: 1rem;}
+.MainMenu {visibility: hidden}
+.footer {visibility: hidden}
+.header {visibility: hidden;} */
+/* body{
+  background-color: #EBEAF8;
+} */
+
+/* sidebar */
+.st-emotion-cache-16txtl3 {
+  padding-top: 40px;
+}
+.st-emotion-cache-1n7zmur {
+  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+}
+.st-av {
+  margin: 0px;
+}
+/* sidebar gap */
+.st-emotion-cache-ue6h4q {
+  margin: 0px;
+}
+/* sidebar img */
+.st-emotion-cache-11qx4gg {
+  display: none;
+}
+/* max width multiselect */
+/* .st-bk {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+} */
+
+/* .label.css-17c4ue e1i5pmia2 {
+  color: #36b9cc !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+} */
+
+/* bumbu atas */
+.st-emotion-cache-1r6slb0 {
+  background-color: #ffffff;
+  border: 1px solid #cccccc;
+  padding: 2% 2%;
+  border-radius: 5px;
+  border-left: 0.5rem solid #262f69;
+  /* box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15); */
+  box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.5);
+  transition: 0.5s;
+}
+.st-emotion-cache-1r6slb0:hover {
+  transform: translateY(5px);
+  box-shadow: 0px 10px 20px 2px rgba(0, 0, 0, 0.25);
+}
+/* font bumbu atas */
+/* .st-emotion-cache-16idsys {
+  font-size: 30px;
+} */
+.st-emotion-cache-1wivap2{
+  font-size: 30px;
+}
+
+/* subHeader */
+.st-emotion-cache-10trblm{
+  margin-top: 18px;
+}
+/* bumbu bawah */
+.st-emotion-cache-1h99123 {
+  margin-top: 40px;
+  border: 1px solid #cccccc;
+}
+.css-wdb9vo {
+  background-color: #ffffff;
+  border: 1px solid #cccccc;
+  padding: 3% 3%;
+  border-radius: 5px;
+  border-left: 0.5rem solid #262f69;
+  border-right: 0.5rem solid #262f69;
+  /* border-top: 0.5rem solid #262F69; */
+  /* border-bottom: 0.5rem solid #262F69; */
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+  display: flex;
+  align-items: center;
+  padding-left: 25px;
+  border-radius: 10px;
+}
+
+.resize-triggers {
+  width: 50%;
+}
+
+/* 3d plot */
+/* .st-emotion-cache-fplge5{
+  margin-top: 40px;
+} */
+/* Gaussian */
+/* .st-emotion-cache-9aoz2h{
+  margin-top: 20px;
+} */
+.st-emotion-cache-9aoz2h{
+  margin-top: 10px;
+  padding-bottom: 0px;
+}
+/* .modebar-btn{
+  display: none;
+} */
+/* input excel */
+
+
+
+
+.js-plotly-plot .css-lbxbd6 .css-ocqkz7 {
+  display: flex;
+  margin-top: 0px;
+}
+
+.plotly {
+  margin-top: 0px;
+}
+
+/* skewed top*/
+#skewed-normal, .st-emotion-cache-1t1li9h{
+  padding-top: 0px;
+}
+
+.st-emotion-cache-10trblm{
+  margin-top: 0px;
+}
+.st-emotion-cache-fplge5{
+  margin-top: 0px;
+}
+
+/* .st-emotion-cache-1629p8f{
+  margin-top: 0px;
+  position: absolute;
+  top:50px;
+  z-index: -1;
+} */
+
+#Forecast{
+  padding-bottom: 0px;
+}
+/* table */
+.padding-table{
+  padding-top:48px;
+}
+.modebar-group, .st-emotion-cache-1pxazr7{
+  display: none;
+}
+.st-emotion-cache-18sm3rl{
+  padding-top: 0px;
+}
+
+/* .st-emotion-cache-1i5zh55{
+  margin-top: 100px;
+} */
