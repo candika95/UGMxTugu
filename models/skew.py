@@ -39,6 +39,7 @@ numpy2ri.activate()
 rpy2.robjects.numpy2ri.activate()
 # pbmc = sc.datasets.pbmc68k_reduced()
 # ro.globalenv['sce'] = pbmc
+# Fungsi untuk menghitung BIC dan AIC
 def calculateBICnAIC(ll, y):
   npar = y.shape[1] + sum(range(1, y.shape[1] + 1))
   ll = ll
@@ -64,6 +65,9 @@ def calculateBICnAIC(ll, y):
 #     return bic_multi, aic_multi
 import pandas as pd
 pd.DataFrame.iteritems = pd.DataFrame.items
+# Impor paket 'sn'
+sn = importr('sn')
+# @st.cache_data
 def trainSkew(df):
   # with ro.conversion.localconverter(ro.default_converter + pandas2ri.converter):
   #     # Konversi DataFrame pandas ke DataFrame R
@@ -73,8 +77,7 @@ def trainSkew(df):
       # data_claim_r = ro.conversion.get_conversion().py2rpy(df)
     pandas2ri.activate()
     data_claim_r = pandas2ri.py2rpy(df)
-    # Impor paket 'sn'
-    sn = importr('sn')
+    
     result = sn.msn_mle(y=data_claim_r, opt_method="BFGS")
     # miu = result['dp']['beta']
     # omega = result['dp']['Omega']
@@ -84,16 +87,17 @@ def trainSkew(df):
     omega = result.rx2('dp').rx2('Omega')
     alpha = result.rx2('dp').rx2('alpha')
     logL = result.rx2('logL')
-    return result, miu, omega, alpha, sn, logL
-
+    return result, miu, omega, alpha, logL
 
 
 # from rpy2.robjects.packages import importr
 # from rpy2.robjects import pandas2ri
 # from rpy2.robjects.packages import importr
 # import rpy2.robjects as robjects
+
+# Fungsi untuk menghitung PDF Skewed Normal
 @st.cache_data
-def pdf_function(x, mu, omega, alpha, sn):
+def pdf_function(x, mu, omega, alpha):
     pdf_values = np.zeros(x.shape[0])
     m= mu[:,0]
     m= np.repeat(m, x.shape[0])
@@ -121,17 +125,29 @@ def pdf_function(x, mu, omega, alpha, sn):
 #     pdf_values += r.sn.dmsn(x_list, mu_list, omega_list, alpha_list)
 #   return pdf_values
 from rpy2.robjects import numpy2ri, r
-@st.cache_data
-def calculateSample(miuSkew, omegaSkew, alphaSkew, sn):
+from rpy2.robjects import pandas2ri
+# Fungsi untuk mengambil sampel dari distribusi Skewed Normal 
+@st.cache_data(ttl=3600)
+def calculateSample(miuSkew, omegaSkew, alphaSkew):
+  np.random.seed(random.randint(0, 1000000))
   sample_size = 100000
   sample = np.zeros((sample_size, 2))
   k= miuSkew[:,0]
   l= miuSkew[:,1]
   mu= pd.DataFrame({'LogNet': k, 'diff_time': l})
+  pandas2ri.activate()
+  mu_r = pandas2ri.py2rpy(mu)
+  # generated_sample = np.zeros((sample_size, 2))
+  # mu_r = ro.conversion.py2ri(mu.values)
   for i in range(sample_size):
     # Generate a random sample
-    sample[i,:] = np.transpose(sn.rmsn(1, mu, omegaSkew, alphaSkew))
+    generated_sample = np.transpose(sn.rmsn(1, mu_r, omegaSkew, alphaSkew))
+    sample[i, :] = generated_sample.copy()
+    # sample[i,:] = np.transpose(sn.rmsn(1, mu_r, omegaSkew, alphaSkew))
+  # Sample = pd.DataFrame(sample, columns=['LogNet', 'diff_time'])
   return sample
+  # return Sample
+# Fungsi untuk menghitung conditional expectation E(C|T) diketahui interval T
 @st.cache_data
 def conditional_mean(sample, a, b):
     # Filter the sample to include only the rows where lower_limit < T <= upper_limit
@@ -142,6 +158,7 @@ def conditional_mean(sample, a, b):
     expectation = np.sum(filtered_sample[:,0]) / len(filtered_sample)
 
     return expectation
+# Fungsi untuk menghitung conditional variance Var(C|T) diketahui interval T
 @st.cache_data
 def conditional_variance(sample, a, b):
     # Filter the sample to include only the rows where lower_limit < T <= upper_limit
@@ -156,6 +173,8 @@ def conditional_variance(sample, a, b):
     variance = expectation_C2 - expectation_C**2
 
     return np.sqrt(variance)
+# Fungsi untuk menghitung Value at Risk VaR(C|T) diketahui interval T dengan tingkat kepercayaan alpha tertentu  
+@st.cache_data
 def calculateVaR(alfa, sample, a, b):
     # Filter the sample to include only the rows where lower_limit < T <= upper_limit
     filtered_sample = sample[(sample[:, 1] > a) & (sample[:, 1] <= b), :]
@@ -165,9 +184,9 @@ def calculateVaR(alfa, sample, a, b):
     VaR = np.quantile(filtered_sample[:,0], alfa)
     # TVaR = np.mean(filtered_sample[filtered_sample[:, 0] > VaR, 1])
     return VaR
-
+# Fungsi untuk membuat plot Skewed Normal
 @st.cache_data
-def plotSkew(miuSkew, omegaSkew , alphaSkew, b, alpha, sn):
+def plotSkew(miuSkew, omegaSkew , alphaSkew, b, alpha):
   results  = []
   results_dates = []
   result_variance = []
@@ -175,7 +194,7 @@ def plotSkew(miuSkew, omegaSkew , alphaSkew, b, alpha, sn):
   st.session_state.df['trx_date'] = pd.to_datetime(st.session_state.df['trx_date'])
   start = st.session_state.df['trx_date'].max()
   start_month = start + pd.DateOffset(months=b)
-  sample = calculateSample(miuSkew, omegaSkew , alphaSkew, sn)
+  sample = calculateSample(miuSkew, omegaSkew , alphaSkew)
   for i in range(0, 109, b):
     a = i
     end = a + b

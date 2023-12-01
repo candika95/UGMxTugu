@@ -8,7 +8,7 @@ import streamlit as st
 # from datetime import datetime
 import random
 
-
+# Fungsi untuk menghitung BIC dan ICL
 @st.cache_data
 def calculateBICnICL(df):
   BIC = []
@@ -29,6 +29,7 @@ def calculateBICnICL(df):
 def trainGmm(df, index):
   gmm = GaussianMixture(n_components=index, covariance_type='full', random_state=0).fit(df)
   return gmm
+# Fungsi untuk mengambil sampel random dari model GMM
 @st.cache_data
 def calculateSample(G, pro, mean, var):
   # Dibuat set seed dari awal supaya hasilnya perhitungan konsisten
@@ -45,6 +46,7 @@ def calculateSample(G, pro, mean, var):
     sample[i, :] = np.random.multivariate_normal(mean=mean[component,:], cov=var[component,:])
   return sample
   # return pd.DataFrame(sample, columns=['diff_time', 'LogNet'])
+# Fungsi untuk menghitung conditional expectation E(C|T) diketahui interval T
 @st.cache_data
 def conditional_mean(sample, a, b):
   # Filter the sample to include only the rows where lower_limit < T <= upper_limit
@@ -56,6 +58,7 @@ def conditional_mean(sample, a, b):
 
     return expectation
 # conditional_mean(5, gmm.weights_, gmm.means_, gmm.covariances_, 0, 12)
+# Fungsi untuk menghitung conditional variance Var(C|T) diketahui interval T
 @st.cache_data
 def conditional_variance(sample, a, b):
   # Filter the sample to include only the rows where lower_limit < T <= upper_limit
@@ -73,6 +76,7 @@ def conditional_variance(sample, a, b):
     # print(f"Var(C| {a} < T <= {b}) = {variance}")
     # print(f"Stdev(C| {a} < T <= {b}) = {np.sqrt(variance)}")
 # conditional_variance(6, gmm.weights_, gmm.means_, gmm.covariances_, 0, 12)
+# Fungsi untuk menghitung Value at Risk VaR(C|T) diketahui interval T pada tingkat kepercayaan (alpha) tertentu
 @st.cache_data
 def calculateVaR(alpha, sample, a, b):
   # Filter the sample to include only the rows where lower_limit < T <= upper_limit
@@ -86,6 +90,7 @@ def calculateVaR(alpha, sample, a, b):
     # print(f"VaR at {alpha*100}% confidence level for range {a} to {b} is: {VaR}")
     #print(f"TVaR at {alpha*100}% confidence level for range {a} to {b} is: {TVaR}")
 # VaR(0.75, 5, gmm.weights_, gmm.means_, gmm.covariances_, 0, 12)
+# Fungsi untuk membuat plot Gaussian Mixture Model
 @st.cache_data
 def plotGMM(G, pro, mean, var, b, alpha):
   results  = []

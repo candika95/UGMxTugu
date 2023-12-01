@@ -27,11 +27,13 @@ numpy2ri.activate()
 # from rpy2 import rinterface
 
 import os
-os.environ['R_HOME'] = 'C:\Program Files\R\R-4.3.2'
+if 'R_HOME' not in os.environ:
+    os.environ['R_HOME'] = 'C:\Program Files\R\R-4.3.2'
+# os.environ['R_HOME'] = 'C:\Program Files\R\R-4.3.2'
 
 
 
-
+# styling
 hide_st_style = """
             <style>
             div.block-container{padding-top: 1rem;}
@@ -41,24 +43,27 @@ hide_st_style = """
             </style>
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)  
+# import gambar
 tuguIcon = Image.open('./images/Tugu.png')
 ugmIcon = Image.open('./images/LogoUgmHorizontal.png')
 kedairekaIcon = Image.open('./images/Kedaireka.png')
+# mengelola input excel user
 if "uploaded_file" not in st.session_state:
     st.session_state["uploaded_file"] = None
 @st.cache_data(ttl=(60*60*24))
-def get_data_from_csv(uploaded_file):
+def readCsv(uploaded_file):
     df = pd.read_csv(uploaded_file)
     return df
 @st.cache_data(ttl=(60*60*24))
-def get_data_from_excel(uploaded_file):
+def readExcel(uploaded_file):
     df = pd.read_excel(uploaded_file, engine="openpyxl")
     return df
 def try_read_df(f):
     try:
-        return get_data_from_csv(f)
+        return readCsv(f)
     except:
-        return get_data_from_excel(f)
+        return readExcel(f)
+# home page
 def inputPage():
     with open("./styles/styleInput2.css") as source_des:
         st.markdown(f"<style>{source_des.read()}</style>", unsafe_allow_html=True)
@@ -91,6 +96,7 @@ def inputPage():
         # transition_thread = threading.Thread(target=transition_to_main)
         # transition_thread.start()
         st.rerun()
+# fungsi memanggil lottie
 @st.cache_data
 def load_lottie_json(json_path: str):
     try:
@@ -99,47 +105,45 @@ def load_lottie_json(json_path: str):
     except Exception as e:
         st.error(f"Error loading Lottie JSON: {e}")
         return None
+# fungsi seleksi data
 def sidebarFilter(df):
     # st.header("Please Filter Here:")
     conditions = []
-    model = st.sidebar.selectbox('Model',('Gaussian Mixture', 'Skewed Normal'))
+    model = st.sidebar.selectbox('Model', ('Gaussian Mixture', 'Skewed Normal'))
     timeInterval = st.sidebar.number_input('Time Interval', value=12)
-    alpha = st.sidebar.number_input('Alpha',0.0, 1.0, (0.75), step=0.1)
-    # time = st.sidebar.number_input('Insert time')
+    alpha = st.sidebar.number_input('Alpha', 0.0, 1.0, (0.75), step=0.1)
+    cob = None  # Initialize cob to None
+
     if 'COB' in df.columns:
+        cob_options = df["COB"].unique()
         cob = st.sidebar.selectbox(
-                        "Select the COB:",
-                        options=df["COB"].unique(),
-            )
-        conditions.append(f"COB == {cob}")
-    if 'Product_Name' in df.columns:
-        productName = st.sidebar.multiselect(
-                        "Select the Product Name:",
-                        options=df["Product_Name"].unique(),
-                        default=df["Product_Name"].unique()
-            )
-        conditions.append(f"Product_Name == {productName}")
-    # if 'year' in df.columns:
-    #     Year = st.sidebar.multiselect(
-    #                     "Select the year:",
-    #                     options=df["year"].unique(),
-    #                     default=df["year"].unique()
-    #         )
-    #     conditions.append(f"year == {Year}")
-    # if 'trx_date' in df.columns:
-    #     Year = st.sidebar.multiselect(
-    #                     "Select the year:",
-    #                     options=df["trx_date"].dt.year.unique(),
-    #                     default=df["trx_date"].dt.year.unique()
-    #         )
-    #     conditions.append(f"trx_date == {Year}")
-    # df_selection = df.query("Product_Name == @productName & biz_cls == @bizCls & year == @Year")
-    if conditions:
-        query_string = " & ".join(conditions)
-        df_selection = df.query(query_string)
+        "Select the COB:",
+        options=cob_options,
+    )
+        conditions_cob = df["COB"] == cob
     else:
-        df_selection = df  # No conditions, so no filtering is applied
+        conditions_cob = pd.Series(True, index=df.index)  # True for all rows if 'COB' column is not present
+
+    if 'Product_Name' in df.columns:
+        product_options = df.loc[conditions_cob, "Product_Name"].unique()
+        product_options_str = [f"{option}" for option in product_options]
+        product_names = st.sidebar.multiselect(
+            "Select the Product Name:",
+            options=product_options_str,
+            default=product_options_str
+        )
+
+        if product_names:
+            conditions_product = df["Product_Name"].isin(product_names)
+            conditions = conditions_cob & conditions_product
+            df_selection = df[conditions]
+        else:
+            df_selection = df[conditions_cob]  # No product names selected, filter based on COB only
+    else:
+        df_selection = df[conditions_cob]  # No 'Product_Name' column, filter based on COB only
+
     return df_selection, model, timeInterval, alpha
+# mengelola data input sesuai model
 @st.cache_data
 def preModelGMM(df):
     # df = df.drop_duplicates(subset=['claim_size'])
@@ -171,6 +175,7 @@ def preModelSkew(df):
     df=df.reindex(columns=new_cols)
     df = df.reset_index(drop=True)
     return df
+# mengubah dataframe menjadi file excel
 def to_excel(df):
     # Create a Pandas Excel writer using XlsxWriter as the engine
     writer = pd.ExcelWriter('data.xlsx', engine='xlsxwriter')
@@ -180,6 +185,7 @@ def to_excel(df):
 
     # Close the Pandas Excel writer to save the file
     writer.close()
+# membuat 3d plot gmm
 @st.cache_data
 def plot3dGMM(df, index):
     # Buat bins untuk data Anda
@@ -199,7 +205,7 @@ def plot3dGMM(df, index):
     total_freq = np.sum(dz)
     # Ubah frekuensi menjadi probabilitas
     dz = dz / total_freq
-    # Asumsikan Anda memiliki Gaussian Mixture Model (GMM) yang sudah dilatih dengan nama 'gmm'
+    
     gmm = GMM.trainGmm(df, index)
     X, _ = gmm.sample(100000)  # mengambil sampel dari model
     # Hitung nilai f(x, y) untuk setiap sampel
@@ -222,38 +228,43 @@ def plot3dGMM(df, index):
                                 margin=dict(r=20, l=10, b=10, t=40),
                                 legend=dict(traceorder='reversed'), showlegend=True)
     return fig3dGMM
+# membuat tabel plot gmm
 @st.cache_data
-def plotTableGMM(df):
+def plotTableGMM(df, alpha):
+    alpha = alpha * 100
     figtGMM = go.Figure(data=[go.Table(
-            columnwidth = [20, 50, 50, 40, 20],
-                header=dict(values=list(df.columns),
-                fill_color='#9100FE',
-                font=dict(color='white', size=15)),
-                cells=dict(values=[df.date, df.Expectation, df.stDev, df.VaR, df.Ratio],
-               fill_color='white',
-               font=dict(size=15),
-               height=30))])
+        columnwidth=[19, 50, 45, 45, 25],
+        header=dict(values=['Date', 'Expectation', 'StDev', f"VaR {alpha}%", 'Ratio(%)'],
+                    fill_color='#9100FE',
+                    font=dict(color='white', size=15)),
+        cells=dict(values=[df.date, df.Expectation, df.stDev, df.VaR, df.Ratio],
+                   fill_color='white',
+                   font=dict(size=15),
+                   height=30))])
     figtGMM.update_layout(
     title_text='Table Forecast',
 )
     return figtGMM
+# membuat tabel plot skew
 @st.cache_data
-def plotTableSkew(df):
+def plotTableSkew(df, alpha):
+    alpha = alpha * 100
     figtSkew = go.Figure(data=[go.Table(
-            columnwidth = [20, 50, 50, 40, 20],
-                header=dict(values=list(df.columns),
-                fill_color='#9100FE',
-                font=dict(color='white', size=15)),
-                cells=dict(values=[df.date, df.Expectation, df.stDev, df.VaR, df.Ratio],
-               fill_color='white',
-               font=dict(size=15),
-               height=30))])
+        columnwidth=[20, 45, 45, 50, 25],
+        header=dict(values=['Date', 'Expectation', 'StDev', f"VaR {alpha}%", 'Ratio(%)'],
+                    fill_color='#9100FE',
+                    font=dict(color='white', size=15)),
+        cells=dict(values=[df.date, df.Expectation, df.stDev, df.VaR, df.Ratio],
+                   fill_color='white',
+                   font=dict(size=15),
+                   height=30))])
     figtSkew.update_layout(
     title_text='Table Forecast',
 )
     return figtSkew
+# membuat 3d plot skew
 @st.cache_data
-def plot3dSkew(df, miuSkew, omegaSkew , alphaSkew, sn):
+def plot3dSkew(df, miuSkew, omegaSkew , alphaSkew):
     x_c, x_bin_edges = np.histogram(df['diff_time'], bins=20)
     y_c, y_bin_edges = np.histogram(df['LogNet'], bins=20)
 
@@ -270,24 +281,24 @@ def plot3dSkew(df, miuSkew, omegaSkew , alphaSkew, sn):
     total_freq = np.sum(dz)
     dz = dz / total_freq
     pandas2ri.activate()
-    joint_msn = skew.pdf_function(df, miuSkew, omegaSkew , alphaSkew, sn)
+    joint_msn = skew.pdf_function(df, miuSkew, omegaSkew , alphaSkew)
     #Membuat data frame
     df2= pd.DataFrame(joint_msn, columns=['joint_msn'])
     #Memasukkan ke dataframe
     data_claim2 = pd.DataFrame({'LogNet': df['LogNet'], 'diff_time': df['diff_time'], "joint_msn" : df2['joint_msn']})
     fig3dSkew = go.Figure()
-    fig3dSkew.add_trace(go.Scatter3d(x=data_claim2['diff_time'], y=data_claim2['LogNet'], z=data_claim2['joint_msn'],mode='markers', marker=dict(color='blue', size=2)))
+    fig3dSkew.add_trace(go.Scatter3d(x=data_claim2['diff_time'], y=data_claim2['LogNet'], z=data_claim2['joint_msn'],mode='markers', marker=dict(color='blue', size=2), name='sample'   ))
     fig3dSkew.add_trace(go.Mesh3d(x=xpos, y=ypos, z=dz, color='rgba(255, 0, 0, 0.7)', opacity=0.50))
     fig3dSkew.update_layout(scene=dict(
                                 xaxis_title='diff_time',
                                 yaxis_title='LogNet',
                                 zaxis_title='f(c,t)'),
-                                title='3D Plot Data vs Skewed',
+                                title='3D Plot Data vs Skewed Normal',
                                 width=700,
                                 margin=dict(r=20, l=10, b=10, t=40),
                                 legend=dict(traceorder='reversed'), showlegend=True)
     return fig3dSkew
-
+# page utama yang ditampilkan
 def main_page():
     with open("./styles/style.css") as source_des:
         st.markdown(f"<style>{source_des.read()}</style>", unsafe_allow_html=True)
@@ -304,18 +315,18 @@ def main_page():
 
     
     df_modelSkew = preModelSkew(df_selection)
-    resultSkew, miuSkew, omegaSkew, alphaSkew, sn, logL = skew.trainSkew(df_modelSkew)
+    resultSkew, miuSkew, omegaSkew, alphaSkew, logL = skew.trainSkew(df_modelSkew)
     bicSkew, aicSkew = skew.calculateBICnAIC(logL, df_modelSkew)
     
     # bicSkew, aicSkew = skew.calculateBICnICL(result, df_modelSkew)
     # st.write(bicSkew)
     # varGMM = GMM.calculateVaR(0.75, indexBicGMM, gmm.weights_, gmm.means_, gmm.covariances_, 0, timeInterval)
     sampleGMM = GMM.calculateSample(indexBicGMM, gmm.weights_, gmm.means_, gmm.covariances_)
-    sampleSkew = skew.calculateSample(miuSkew, omegaSkew, alphaSkew, sn)
+    sampleSkew = skew.calculateSample(miuSkew, omegaSkew, alphaSkew)
     expectationGMM = GMM.conditional_mean(sampleGMM, 0, 12)
     expectationSkew = skew.conditional_mean(sampleSkew, 0, 12)
     dfGMM, figGMM = GMM.plotGMM(indexBicGMM, gmm.weights_, gmm.means_, gmm.covariances_, timeInterval, alpha)
-    dfSkew, figSkew = skew.plotSkew(miuSkew, omegaSkew , alphaSkew, timeInterval, alpha, sn)
+    dfSkew, figSkew = skew.plotSkew(miuSkew, omegaSkew , alphaSkew, timeInterval, alpha)
     models = [
             {
             'name': 'Gaussian Mixture',
@@ -334,19 +345,13 @@ def main_page():
         }]
     best_model = min(models, key=lambda model: model['bic'])
     best_model_name = best_model['name']
+    best_model_est = best_model['est']
     totalClaim = df_selection['claim_size'].sum()
     kpi1, kpi2, kpi3 = st.columns(3)
     with kpi1:
         st.metric( label='Total Claim', value=f"{numerize(totalClaim)}")
-    if model == 'Gaussian Mixture':
-        with kpi2:                                                  
-            st.metric( label='Upcoming Year Estimate', value=f"{numerize(models[0]['est'])}")
-    elif model == 'Copula':
-        with kpi2:                                                  
-            st.metric( label='Upcoming Year Estimate', value=f"{models[1]['est']}")
-    elif model == 'Skewed Normal':
-        with kpi2:                                                  
-            st.metric( label='Upcoming Year Estimate', value=f"{numerize(models[2]['est'])}")
+    with kpi2:                                                  
+        st.metric( label='Upcoming Year Estimate', value=f"{numerize(best_model_est)}")
     with kpi3:
         st.metric(label="Best Model", value=f"{best_model_name}")
 
@@ -426,7 +431,7 @@ def main_page():
         
         y1, y2 = st.columns(2)  #[7,6]
         with y1:
-            figtGMM = plotTableGMM(dfGMM)
+            figtGMM = plotTableGMM(dfGMM, alpha)
             st.plotly_chart(figtGMM, use_container_width=True, config={'displayModeBar': False, 'margin': {'t': 0}})
             to_excel(dfGMM)
             with open('data.xlsx', 'rb') as f:
@@ -482,7 +487,7 @@ def main_page():
             # fig = plot_datasets(forecast_data)
             # st.plotly_chart(fig, use_container_width=True)
     if model == 'Skewed Normal':
-        fig3dSkew = plot3dSkew(df_modelSkew, miuSkew, omegaSkew , alphaSkew, sn)
+        fig3dSkew = plot3dSkew(df_modelSkew, miuSkew, omegaSkew , alphaSkew)
         t1, t2 = st.columns([2,3])
         with t1:
             st.subheader('Skewed Normal')
@@ -540,7 +545,7 @@ def main_page():
         
         y1, y2 = st.columns(2)   #[7,6]
         with y1:
-            figtSkew = plotTableSkew(dfSkew)
+            figtSkew = plotTableSkew(dfSkew, alpha)
             st.plotly_chart(figtSkew, use_container_width=True, config={'displayModeBar': False, 'margin': {'t': 0}})
             to_excel(dfSkew)
             with open('data.xlsx', 'rb') as f:
@@ -568,6 +573,7 @@ lottie_json = load_lottie_json('images/lottie.json')
 
 # def run_main_page():
 #     main_page()
+# kondisi mengelola 2 page
 if __name__ == "__main__":
     if not hasattr(st.session_state, 'transition_to_main') or not st.session_state.transition_to_main:
         inputPage()

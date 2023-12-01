@@ -4,3 +4,8 @@ pandas==2.1.0
 plotly==5.16.1
 plotly-express==0.4.1
 streamlit==1.26.0
+rpy2==3.3.6
+streamlit-lottie
+xlsxwriter
+scikit-learn
+scipy
