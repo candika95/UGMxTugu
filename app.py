@@ -29,8 +29,6 @@ numpy2ri.activate()
 import os
 if 'R_HOME' not in os.environ:
     os.environ['R_HOME'] = 'C:\Program Files\R\R-4.3.2'
-# os.environ['R_HOME'] = 'C:\Program Files\R\R-4.3.2'
-
 
 
 # styling
@@ -51,18 +49,18 @@ kedairekaIcon = Image.open('./images/Kedaireka.png')
 if "uploaded_file" not in st.session_state:
     st.session_state["uploaded_file"] = None
 @st.cache_data(ttl=(60*60*24))
-def readCsv(uploaded_file):
+def get_data_from_csv(uploaded_file):
     df = pd.read_csv(uploaded_file)
     return df
 @st.cache_data(ttl=(60*60*24))
-def readExcel(uploaded_file):
+def get_data_from_excel(uploaded_file):
     df = pd.read_excel(uploaded_file, engine="openpyxl")
     return df
 def try_read_df(f):
     try:
-        return readCsv(f)
+        return get_data_from_csv(f)
     except:
-        return readExcel(f)
+        return get_data_from_excel(f)
 # home page
 def inputPage():
     with open("./styles/styleInput2.css") as source_des:

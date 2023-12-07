@@ -19,9 +19,13 @@ import numpy as np
 from plotly import graph_objs as go
 import random
 
+
+
+# if threading.current_thread() is threading.main_thread():
+#     signal.signal(signal.SIGINT, _sigint_handler)
 import os
-os.environ['R_HOME'] = 'C:\Program Files\R\R-4.3.2'
-# C:\Users\ACER\AppData\Local\Temp\Rtmp8uE8aZ\downloaded_packages
+if 'R_HOME' not in os.environ:
+    os.environ['R_HOME'] = 'C:\Program Files\R\R-4.3.2'# C:\Users\ACER\AppData\Local\Temp\Rtmp8uE8aZ\downloaded_packages
 # ro.r('''
 #     install.packages("sn")
 #     library(sn)
@@ -43,7 +47,21 @@ def calculateBICnAIC(ll, y):
   aic = 2 * npar - 2 * ll
   bic = np.log(n_multi) * npar - 2 * ll
   return bic, aic
-
+# nilai_aic= aicbic(Logl, data_claim)
+# def calculateBICnAIC(x, y):
+#     npar = y.shape[1] + sum(range(1, y.shape[1] + 1))
+#     ll = x['logL']
+#     # ll = x.rx2('logL')
+#     # nll = ll * (-1)
+#     n_multi = y.shape[0]
+#     ll_list = list(ll)
+#     aic_multi = 2 * npar - 2 * np.array(ll_list)
+#     # aic_multi = 2 * npar - 2 * ll
+    
+#     bic_multi = np.log(np.array(n_multi)) * npar - 2 * ll_list
+#     # bic_multi = np.log(n_multi) * npar - 2 * ll
+#     # df = pd.DataFrame({ 'aic.multi': [aic_multi], 'bic.multi': [bic_multi]})
+#     return bic_multi, aic_multi
 import pandas as pd
 pd.DataFrame.iteritems = pd.DataFrame.items
 # Impor paket 'sn'
@@ -128,29 +146,9 @@ def calculateSample(miuSkew, omegaSkew, alphaSkew):
   # Sample = pd.DataFrame(sample, columns=['LogNet', 'diff_time'])
   return sample
   # return Sample
-from scipy.stats import skewnorm
-# @st.cache(ttl=3600)
-# def calculateSample(miuSkew, omegaSkew, alphaSkew):
-#     sample_size = 100000
-
-#     # Extracting parameters for Skew Normal distribution
-#     location = miuSkew[:, 0]
-#     scale = omegaSkew[:, 0]  # Assuming omegaSkew is a 2D array
-#     skewness = alphaSkew[0]  # Assuming alphaSkew is a 1D array
-
-#     rng = np.random.default_rng()
-
-#     # Generate samples using the Skew Normal distribution
-#     generated_samples = np.column_stack([
-#         skewnorm.rvs(a=skewness, loc=location[i], scale=scale[i], size=sample_size)
-#         for i in range(len(location))
-#     ])
-
-#     return generated_samples
 # Fungsi untuk menghitung conditional expectation E(C|T) diketahui interval T
 @st.cache_data
 def conditional_mean(sample, a, b):
-    # st.write(sample)
     # Filter the sample to include only the rows where lower_limit < T <= upper_limit
     filtered_sample = sample[(sample[:, 1] > a) & (sample[:, 1] <= b), :]
     filtered_sample[:, 0] = np.exp(filtered_sample[:, 0])
