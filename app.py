@@ -26,9 +26,9 @@ numpy2ri.activate()
 # from rpy2.robjects.packages import importr
 # from rpy2 import rinterface
 
-import os
-if 'R_HOME' not in os.environ:
-    os.environ['R_HOME'] = 'C:\Program Files\R\R-4.3.2'
+# import os
+# if 'R_HOME' not in os.environ:
+#     os.environ['R_HOME'] = 'C:\Program Files\R\R-4.3.2'
 
 
 # styling

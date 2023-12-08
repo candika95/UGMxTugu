@@ -24,8 +24,8 @@ import random
 # if threading.current_thread() is threading.main_thread():
 #     signal.signal(signal.SIGINT, _sigint_handler)
 import os
-if 'R_HOME' not in os.environ:
-    os.environ['R_HOME'] = 'C:\Program Files\R\R-4.3.2'# C:\Users\ACER\AppData\Local\Temp\Rtmp8uE8aZ\downloaded_packages
+# if 'R_HOME' not in os.environ:
+#     os.environ['R_HOME'] = 'C:\Program Files\R\R-4.3.2'# C:\Users\ACER\AppData\Local\Temp\Rtmp8uE8aZ\downloaded_packages
 # ro.r('''
 #     install.packages("sn")
 #     library(sn)
